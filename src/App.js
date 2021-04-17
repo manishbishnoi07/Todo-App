@@ -1,23 +1,36 @@
-import logo from './logo.svg';
 import './App.css';
-
+import Navbar from "./components/Navbar"
+import Login from "./components/Login"
+import Dashboard from "./components/Dashboard"
+import { useSelector,useDispatch } from 'react-redux';
+import { auth } from './firebase';
+import { useEffect } from 'react';
+import { signIn, signOut } from './actions/authActions';
 function App() {
+  const {user}=useSelector(state=>state.auth)
+  const dispatch=useDispatch()
+  useEffect(()=>{
+    const unsubscribe=auth.onAuthStateChanged((userAuth)=>{
+      if(userAuth){
+        dispatch(signIn(userAuth))
+      }
+      else{
+        dispatch(signOut())
+      }
+    })
+    return unsubscribe
+  },[dispatch])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      {!user?(
+          <Login/>
+        ):
+        <>
+          <Navbar/>
+          <Dashboard/>
+        </>
+        }
     </div>
   );
 }
